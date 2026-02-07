@@ -21,6 +21,9 @@ app.use("/api/workouts", workoutRoutes);
 app.use("/api/metrics", metricRoutes);
 app.use("/api/analytics", analyticsRoutes);
 
+app.use("/api/users", require("./routes/users"));
+app.use("/api/admin", require("./routes/admin"));
+
 app.use(notFound);
 app.use(errorHandler);
 
