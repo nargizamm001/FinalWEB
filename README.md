@@ -1,123 +1,137 @@
-# Fitness Tracker — Advanced Databases (NoSQL)
+# FitTrack — Fitness Tracker Web Application (Advanced Databases / NoSQL)
 
-## Project Overview
-This is a full-stack web application for tracking workouts and daily fitness metrics.
-Users can register, log in, manage workouts, track metrics, and view analytics.
-The project was developed as the final project for the Advanced Databases (NoSQL) course.
+Deployed frontend (Vercel): https://finalnosql.vercel.app  
+Deployed backend (Render/Railway): https://<PASTE_BACKEND_URL_HERE>
 
-## Tech Stack
-Frontend: React, Vite  
-Backend: Node.js, Express  
-Database: MongoDB, Mongoose  
-Authentication: JWT  
+## Project overview
+FitTrack is a full-stack fitness tracker web application. Users can register, log in, manage workout sessions, track daily metrics (weight, steps, sleep, water), and view analytics (weekly summary, top exercises).
+The backend is built with Node.js + Express and MongoDB. The frontend is built with React (Vite). Authentication is implemented using JWT.
 
-## System Architecture
-The frontend communicates with the backend through a REST API.
-The backend handles authentication, business logic, and database access.
-MongoDB is used as the primary NoSQL database with both embedded and referenced data models.
+## Tech stack
+Frontend: React, Vite, Axios, React Router  
+Backend: Node.js, Express, Mongoose  
+Database: MongoDB Atlas  
+Security: JWT, bcrypt  
+Validation: Joi  
+Deployment: Vercel (frontend), Render/Railway (backend)
 
-Client → REST API → Express Server → MongoDB
+## System architecture
+Client (React) → REST API (Express) → MongoDB (Mongoose)
 
-## Environment Configuration
-Sensitive configuration values such as JWT secrets and database connection strings
-are stored in environment variables.  
-A `.env.example` file is provided to document required variables without exposing
-real credentials.
+## Database design
+Collections used:
+- users: name, email (unique), passwordHash, role, createdAt/updatedAt
+- workouts: user (ref users), date, durationMin, notes, items (exercise refs), sets (embedded)
+- metrics: user (ref users), date, weightKg, steps, sleepHours, waterMl
+- exercises: name, muscleGroup (if present)
 
-## Database Design
+Relationship:
+- One user has many workouts and metrics
+- Every workout/metric is filtered by the logged-in user (owner)
 
-### Collections
-**Users (referenced)**
-- email (unique)
-- password
-- createdAt
+## Environment variables
 
-**Workouts (referenced + embedded)**
-- user (ref User)
-- date
-- duration
-- exercises (embedded array)
-  - name
-  - sets
-  - reps
-  - weight
+Backend (server/.env)
+PORT=5000
+MONGO_URI=...
+JWT_SECRET=...
+CLIENT_URL=http://localhost:5173,https://finalnosql.vercel.app
 
-**Metrics (referenced)**
-- user (ref User)
-- date
-- weight
-- steps
+Frontend (client .env / Vercel env)
+VITE_API_URL=https://<BACKEND_URL>
 
-### Embedded vs Referenced
-Referenced documents are used to separate user data and ensure security.
-Embedded documents are used for workout exercises to allow fast reads without joins.
+## Local setup instructions
 
-## Indexing and Optimization
+1) Clone repository
+git clone <repo-url>
+cd FinalWEB
 
-To improve query performance, compound indexes are used for frequently accessed data.
+2) Run backend
+cd server
+npm install
+cp .env.example .env
+npm run dev
 
-- **Workouts collection**
-  - Compound index: `{ userId: 1, date: -1 }`
-  - Optimizes queries that fetch workouts for a specific user sorted by date.
+3) Run frontend
+cd ../client
+npm install
+Create client/.env and add:
+VITE_API_URL=http://localhost:5000
+npm run dev
 
-- **Metrics collection**
-  - Compound unique index: `{ userId: 1, date: -1 }`
-  - Ensures one metric entry per user per day and improves analytics performance.
+Open: http://localhost:5173
 
-Indexes are defined directly in the Mongoose models:
-- `server/src/models/Workout.js`
-- `server/src/models/Metric.js`
+## API documentation
 
-## REST API Endpoints
+Base URL:
+- Local: http://localhost:5000
+- Production: https://<BACKEND_URL>
 
-### Auth
-- POST `/api/auth/register`
-- POST `/api/auth/login`
+Authentication (public)
+POST /api/auth/register
+Body:
+{
+  "name": "User",
+  "email": "user@mail.com",
+  "password": "StrongPass123"
+}
 
-### Workouts
-- POST `/api/workouts`
-- GET `/api/workouts`
-- GET `/api/workouts/:id`
-- PUT `/api/workouts/:id`
-- DELETE `/api/workouts/:id`
-- POST `/api/workouts/:id/items`
-- POST `/api/workouts/:id/items/:exerciseId/sets`
-- PATCH `/api/workouts/:id/items/:exerciseId/sets/:setId`
-- DELETE `/api/workouts/:id/items/:exerciseId/sets/:setId`
-- DELETE `/api/workouts/:id/items/:exerciseId`
+POST /api/auth/login
+Body:
+{
+  "email": "user@mail.com",
+  "password": "StrongPass123"
+}
+Response:
+{
+  "token": "<JWT>",
+  "user": { "id": "...", "name": "...", "email": "...", "role": "user" }
+}
 
-### Metrics
-- POST `/api/metrics` (upsert metric entry for a specific date)
-- GET `/api/metrics`
-- DELETE `/api/metrics/:id`
+User management (private)
+Header:
+Authorization: Bearer <JWT>
 
-### Analytics (Aggregation)
-- GET `/api/analytics/weekly-summary`
-- GET `/api/analytics/top-exercises`
+GET /api/users/profile
+PUT /api/users/profile
 
-## MongoDB Features Used
-- Full CRUD operations across multiple collections
-- Embedded and referenced data models
-- Advanced update operators ($set, $push, $pull)
-- Multi-stage aggregation pipelines
-- Compound indexes
-- Authentication and authorization
+Main resource (private): Workouts
+POST /api/workouts
+GET /api/workouts
+GET /api/workouts/:id
+PUT /api/workouts/:id
+DELETE /api/workouts/:id
 
-## Frontend Pages
-- Login
-- Register
-- Workouts
-- Workout Details
-- Metrics
-- Analytics
+Additional resource (private): Metrics
+POST /api/metrics
+GET /api/metrics
+DELETE /api/metrics/:id
 
-## Student Contributions
-**Arailym**
-- Frontend development and API integration
+Analytics (private)
+GET /api/analytics/weekly-summary
+GET /api/analytics/top-exercises
 
-**Nargiza**
-- Backend development, MongoDB models, and analytics
+RBAC (bonus)
+Admin-only:
+DELETE /api/admin/workouts/:id
 
-## Deployment
-Frontend deployed on Vercel  
-Backend deployed on Render
+## Validation and error handling
+- Joi validation is applied to auth and resource endpoints
+- Global error handler returns meaningful status codes: 400, 401, 403, 404, 500
+
+## Screenshots (required)
+Add screenshots to README (or a /screens folder) showing:
+1) Home page
+2) Register page
+3) Login page
+4) Profile page (after login)
+5) Workouts list
+6) Workout details (items/sets)
+7) Metrics page
+8) Analytics page
+9) MongoDB Atlas collections (users + workouts + metrics)
+10) Deployment (Vercel + Render/Railway URLs)
+
+## Authors
+Tyulebayeva Arailym  
+Mnaidarova Nargiza

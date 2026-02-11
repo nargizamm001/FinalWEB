@@ -8,6 +8,8 @@ const adminRoutes = require("./routes/admin");
 const workoutRoutes = require("./routes/workoutRoutes");
 const metricRoutes = require("./routes/metricRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const exerciseRoutes = require("./routes/exerciseRoutes");
 
 const { notFound, errorHandler } = require("./middleware/error");
 
@@ -38,6 +40,8 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/workouts", workoutRoutes);
 app.use("/api/metrics", metricRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/notifications", notificationRoutes); 
+app.use("/api/exercises", exerciseRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

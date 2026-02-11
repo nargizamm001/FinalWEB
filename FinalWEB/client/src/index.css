@@ -33,6 +33,24 @@ body{
     linear-gradient(180deg, var(--bg0), var(--bg1));
 }
 
+html, body {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background-attachment: fixed;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+main {
+  width: 100%;
+  min-height: calc(100vh - 80px);
+}
+
 /* basic typography */
 h1,h2,h3{ margin: 0 0 12px; letter-spacing: -0.02em; }
 p{ color: var(--muted); }

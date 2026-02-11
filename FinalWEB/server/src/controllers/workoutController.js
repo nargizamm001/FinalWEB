@@ -26,7 +26,11 @@ async function listWorkouts(req, res) {
   const sortVal = sort === "asc" ? 1 : -1;
 
   const [items, total] = await Promise.all([
-    Workout.find(q).sort({ date: sortVal }).skip(skip).limit(Number(limit)),
+    Workout.find(q)
+      .sort({ date: sortVal })
+      .skip(skip)
+      .limit(Number(limit))
+      .populate("items.exerciseId", "name muscleGroup"),
     Workout.countDocuments(q)
   ]);
 
@@ -34,7 +38,9 @@ async function listWorkouts(req, res) {
 }
 
 async function getWorkout(req, res) {
-  const workout = await Workout.findOne({ _id: req.params.id, userId: req.user.id });
+  const workout = await Workout.findOne({ _id: req.params.id, userId: req.user.id })
+    .populate("items.exerciseId", "name muscleGroup");
+
   if (!workout) return res.status(404).json({ error: "Workout not found" });
   res.json(workout);
 }
@@ -44,7 +50,8 @@ async function updateWorkout(req, res) {
     { _id: req.params.id, userId: req.user.id },
     { $set: { date: req.body.date, durationMin: req.body.durationMin, notes: req.body.notes } },
     { new: true }
-  );
+  ).populate("items.exerciseId", "name muscleGroup");
+
   if (!workout) return res.status(404).json({ error: "Workout not found" });
   res.json(workout);
 }
@@ -55,7 +62,7 @@ async function deleteWorkout(req, res) {
   res.json({ ok: true });
 }
 
-// ADVANCED: add item (exercise) to workout
+// add item (exercise) to workout
 async function addItem(req, res) {
   const { exerciseId } = req.body;
 
@@ -63,13 +70,13 @@ async function addItem(req, res) {
     { _id: req.params.id, userId: req.user.id },
     { $push: { items: { _id: new mongoose.Types.ObjectId(), exerciseId, sets: [] } } },
     { new: true }
-  );
+  ).populate("items.exerciseId", "name muscleGroup");
 
   if (!workout) return res.status(404).json({ error: "Workout not found" });
   res.json(workout);
 }
 
-// ADVANCED: add set to specific exercise item
+// add set to specific exercise item
 async function addSet(req, res) {
   const { reps, weight, restSec = 60 } = req.body;
   const workoutId = req.params.id;
@@ -79,13 +86,13 @@ async function addSet(req, res) {
     { _id: workoutId, userId: req.user.id, "items.exerciseId": exerciseId },
     { $push: { "items.$.sets": { _id: new mongoose.Types.ObjectId(), reps, weight, restSec } } },
     { new: true }
-  );
+  ).populate("items.exerciseId", "name muscleGroup");
 
   if (!workout) return res.status(404).json({ error: "Workout or exercise item not found" });
   res.json(workout);
 }
 
-// ADVANCED: edit specific set using arrayFilters
+// edit specific set
 async function editSet(req, res) {
   const workoutId = req.params.id;
   const exerciseId = req.params.exerciseId;
@@ -103,15 +110,18 @@ async function editSet(req, res) {
     { $set: update },
     {
       new: true,
-      arrayFilters: [{ "it.exerciseId": new mongoose.Types.ObjectId(exerciseId) }, { "st._id": new mongoose.Types.ObjectId(setId) }]
+      arrayFilters: [
+        { "it.exerciseId": new mongoose.Types.ObjectId(exerciseId) },
+        { "st._id": new mongoose.Types.ObjectId(setId) }
+      ]
     }
-  );
+  ).populate("items.exerciseId", "name muscleGroup");
 
   if (!workout) return res.status(404).json({ error: "Workout not found" });
   res.json(workout);
 }
 
-// ADVANCED: delete specific set ($pull + arrayFilters)
+// delete specific set
 async function deleteSet(req, res) {
   const workoutId = req.params.id;
   const exerciseId = req.params.exerciseId;
@@ -124,13 +134,13 @@ async function deleteSet(req, res) {
       new: true,
       arrayFilters: [{ "it.exerciseId": new mongoose.Types.ObjectId(exerciseId) }]
     }
-  );
+  ).populate("items.exerciseId", "name muscleGroup");
 
   if (!workout) return res.status(404).json({ error: "Workout not found" });
   res.json(workout);
 }
 
-// ADVANCED: remove exercise item from workout ($pull)
+// remove exercise item from workout
 async function removeItem(req, res) {
   const workoutId = req.params.id;
   const exerciseId = req.params.exerciseId;
@@ -139,7 +149,7 @@ async function removeItem(req, res) {
     { _id: workoutId, userId: req.user.id },
     { $pull: { items: { exerciseId: new mongoose.Types.ObjectId(exerciseId) } } },
     { new: true }
-  );
+  ).populate("items.exerciseId", "name muscleGroup");
 
   if (!workout) return res.status(404).json({ error: "Workout not found" });
   res.json(workout);
