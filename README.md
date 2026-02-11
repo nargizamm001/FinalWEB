@@ -1,137 +1,289 @@
-# FitTrack — Fitness Tracker Web Application (Advanced Databases / NoSQL)
+🏋️ Fitness Tracker Web Application
 
-Deployed frontend (Vercel): https://finalnosql.vercel.app  
-Deployed backend (Render/Railway): https://<PASTE_BACKEND_URL_HERE>
+Course: WEB Technologies 2 (Back End)
+University: Astana IT University
+Group: SE-2401
+Authors: Tyulebayeva Arailym, Mnaidarova Nargiza
+Year: 2026
 
-## Project overview
-FitTrack is a full-stack fitness tracker web application. Users can register, log in, manage workout sessions, track daily metrics (weight, steps, sleep, water), and view analytics (weekly summary, top exercises).
-The backend is built with Node.js + Express and MongoDB. The frontend is built with React (Vite). Authentication is implemented using JWT.
+🌐 Live Demo:
+https://finalweb-plum.vercel.app
 
-## Tech stack
-Frontend: React, Vite, Axios, React Router  
-Backend: Node.js, Express, Mongoose  
-Database: MongoDB Atlas  
-Security: JWT, bcrypt  
-Validation: Joi  
-Deployment: Vercel (frontend), Render/Railway (backend)
+📌 Project Overview
 
-## System architecture
-Client (React) → REST API (Express) → MongoDB (Mongoose)
+Fitness Tracker is a full-stack web application designed to help users:
 
-## Database design
-Collections used:
-- users: name, email (unique), passwordHash, role, createdAt/updatedAt
-- workouts: user (ref users), date, durationMin, notes, items (exercise refs), sets (embedded)
-- metrics: user (ref users), date, weightKg, steps, sleepHours, waterMl
-- exercises: name, muscleGroup (if present)
+register and authenticate
 
-Relationship:
-- One user has many workouts and metrics
-- Every workout/metric is filtered by the logged-in user (owner)
+create and manage workout sessions
 
-## Environment variables
+record daily fitness metrics (steps, weight, sleep, water)
 
-Backend (server/.env)
-PORT=5000
-MONGO_URI=...
-JWT_SECRET=...
-CLIENT_URL=http://localhost:5173,https://finalnosql.vercel.app
+analyze workout statistics through analytics
 
-Frontend (client .env / Vercel env)
-VITE_API_URL=https://<BACKEND_URL>
+The system is built using React (frontend), Node.js + Express (backend) and MongoDB Atlas (database).
 
-## Local setup instructions
+🏗 System Architecture
 
-1) Clone repository
-git clone <repo-url>
-cd FinalWEB
+The system consists of three main layers:
 
-2) Run backend
-cd server
-npm install
-cp .env.example .env
-npm run dev
+User → Frontend (React) → Backend (Node.js + Express) → MongoDB → Backend → Frontend
 
-3) Run frontend
-cd ../client
-npm install
-Create client/.env and add:
-VITE_API_URL=http://localhost:5000
-npm run dev
+🔹 Frontend
 
-Open: http://localhost:5173
+React
 
-## API documentation
+Axios for API calls
 
-Base URL:
-- Local: http://localhost:5000
-- Production: https://<BACKEND_URL>
+Private routes
 
-Authentication (public)
+UI navigation
+
+🔹 Backend
+
+Node.js
+
+Express
+
+JWT Authentication
+
+REST API
+
+🔹 Database
+
+MongoDB Atlas
+
+Embedded + Referenced models
+
+Indexing
+
+Aggregation pipelines
+
+🗄 Database Design
+Collections:
+
+users
+
+workouts
+
+exercises
+
+metrics
+
+Referenced Models:
+
+userId in workouts
+
+userId in metrics
+
+exercises referenced in workouts
+
+Embedded Models:
+
+exercises inside workouts
+
+sets inside exercises
+
+This hybrid structure ensures:
+
+Fast workout retrieval
+
+Reduced duplication
+
+Flexible relations
+
+🔐 Authentication & RBAC
+
+Authentication is implemented using JWT (JSON Web Tokens).
+
+Roles:
+
+User → manages only own data
+
+Admin → can delete any workout
+
+Middleware:
+
+JWT verification
+
+Role verification (RBAC)
+
+🔄 CRUD Operations
+
+The system fully supports:
+
+Create
+
+Register user
+
+Create workout
+
+Add exercises & sets
+
+Add daily metrics
+
+Read
+
+Get workouts
+
+Get workout details
+
+Get metrics history
+
+Get analytics
+
+Update
+
+$set
+
+$push
+
+arrayFilters
+
+upsert
+
+Delete
+
+Delete workouts
+
+Delete metrics
+
+$pull exercises from workouts
+
+All queries are filtered by userId.
+
+📊 Aggregation & Indexing
+Aggregations
+Weekly Summary
+
+Group workouts by week
+
+Calculate total duration
+
+Top Exercises
+
+Count exercises
+
+$lookup for additional info
+
+Indexes
+
+Compound index: userId + date
+
+Unique index: metrics (userId + date)
+
+Unique index: users (email)
+
+🌐 REST API Endpoints
+Authentication
+
 POST /api/auth/register
-Body:
-{
-  "name": "User",
-  "email": "user@mail.com",
-  "password": "StrongPass123"
-}
-
 POST /api/auth/login
-Body:
-{
-  "email": "user@mail.com",
-  "password": "StrongPass123"
-}
-Response:
-{
-  "token": "<JWT>",
-  "user": { "id": "...", "name": "...", "email": "...", "role": "user" }
-}
 
-User management (private)
-Header:
-Authorization: Bearer <JWT>
+Workouts
 
-GET /api/users/profile
-PUT /api/users/profile
-
-Main resource (private): Workouts
 POST /api/workouts
 GET /api/workouts
 GET /api/workouts/:id
 PUT /api/workouts/:id
 DELETE /api/workouts/:id
 
-Additional resource (private): Metrics
+Metrics
+
 POST /api/metrics
 GET /api/metrics
 DELETE /api/metrics/:id
 
-Analytics (private)
-GET /api/analytics/weekly-summary
+Analytics
+
+GET /api/analytics/weekly
 GET /api/analytics/top-exercises
 
-RBAC (bonus)
-Admin-only:
-DELETE /api/admin/workouts/:id
+✔ 12+ REST endpoints
+✔ JWT protected
+✔ Role-based access
 
-## Validation and error handling
-- Joi validation is applied to auth and resource endpoints
-- Global error handler returns meaningful status codes: 400, 401, 403, 404, 500
+🧠 MongoDB Query Examples
+Insert Workout
+db.workouts.insertOne({
+  userId: ObjectId("..."),
+  date: ISODate("2026-02-01"),
+  duration: 60,
+  exercises: []
+});
 
-## Screenshots (required)
-Add screenshots to README (or a /screens folder) showing:
-1) Home page
-2) Register page
-3) Login page
-4) Profile page (after login)
-5) Workouts list
-6) Workout details (items/sets)
-7) Metrics page
-8) Analytics page
-9) MongoDB Atlas collections (users + workouts + metrics)
-10) Deployment (Vercel + Render/Railway URLs)
+Find Workouts
+db.workouts.find({ userId: ObjectId("...") });
 
-## Authors
-Tyulebayeva Arailym  
+Add Exercise
+db.workouts.updateOne(
+  { _id: ObjectId("...") },
+  { $push: { exercises: { name: "Bench Press", sets: [] } } }
+);
+
+Remove Exercise
+db.workouts.updateOne(
+  { _id: ObjectId("...") },
+  { $pull: { exercises: { name: "Bench Press" } } }
+);
+
+Weekly Aggregation
+db.workouts.aggregate([
+  { $match: { userId: ObjectId("...") } },
+  {
+    $group: {
+      _id: { $week: "$date" },
+      totalDuration: { $sum: "$duration" }
+    }
+  },
+  { $sort: { "_id": 1 } }
+]);
+
+👩‍💻 Contribution
+Tyulebayeva Arailym
+
+Backend (Node.js, Express)
+
+MongoDB data modeling
+
+CRUD & aggregation
+
+JWT authentication
+
 Mnaidarova Nargiza
+
+Frontend (React)
+
+API integration
+
+UI/UX
+
+Testing & screenshots
+
+✅ REST API Principles
+
+Resource-based URLs
+
+Stateless authentication
+
+Proper HTTP methods
+
+Clear separation of public/private endpoints
+
+🎯 Conclusion
+
+The Fitness Tracker project demonstrates:
+
+Full-stack architecture
+
+REST API development
+
+JWT authentication & RBAC
+
+Advanced MongoDB usage
+
+Aggregation pipelines
+
+Index optimization
+
+The project fully satisfies the requirements of the WEB Technologies 2 (Back End) course and demonstrates practical implementation of database-driven web applications.
