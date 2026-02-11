@@ -1,289 +1,375 @@
-🏋️ Fitness Tracker Web Application
+# 🏋️ Fitness Tracker Web Application
 
-Course: WEB Technologies 2 (Back End)
-University: Astana IT University
-Group: SE-2401
-Authors: Tyulebayeva Arailym, Mnaidarova Nargiza
-Year: 2026
+**Course:** WEB Technologies 2 (Back End)  
+**University:** Astana IT University  
+**Group:** SE-2401  
+**Authors:** Tyulebayeva Arailym, Mnaidarova Nargiza  
+**Year:** 2026  
 
-🌐 Live Demo:
-https://finalweb-plum.vercel.app
+---
 
-📌 Project Overview
+## 🌐 Live Demo
+
+https://finalweb-plum.vercel.app  
+
+---
+
+## 📌 Project Overview
 
 Fitness Tracker is a full-stack web application designed to help users:
 
-register and authenticate
+- Register and authenticate  
+- Create and manage workout sessions  
+- Record daily fitness metrics (steps, weight, sleep, water intake)  
+- Analyze workout statistics through analytics  
 
-create and manage workout sessions
+The system is built using:
 
-record daily fitness metrics (steps, weight, sleep, water)
+- Frontend: React  
+- Backend: Node.js + Express  
+- Database: MongoDB Atlas  
 
-analyze workout statistics through analytics
+---
 
-The system is built using React (frontend), Node.js + Express (backend) and MongoDB Atlas (database).
+## 🏗 System Architecture
 
-🏗 System Architecture
+User → Frontend (React) → Backend (Express API) → MongoDB → Backend → Frontend  
 
-The system consists of three main layers:
+The application follows a three-layer architecture.
 
-User → Frontend (React) → Backend (Node.js + Express) → MongoDB → Backend → Frontend
+### Frontend
+- React  
+- Axios for API requests  
+- Private routes for protected pages  
+- JWT stored in localStorage  
 
-🔹 Frontend
+### Backend
+- Node.js  
+- Express  
+- REST API  
+- JWT Authentication  
+- Role-Based Access Control (RBAC)  
+- Joi validation middleware  
+- Global error-handling middleware  
 
-React
+### Database
+- MongoDB Atlas  
+- Embedded + Referenced data models  
+- Indexing  
+- Aggregation pipelines  
 
-Axios for API calls
+---
 
-Private routes
+## 🗄 Database Design
 
-UI navigation
-
-🔹 Backend
-
-Node.js
-
-Express
-
-JWT Authentication
-
-REST API
-
-🔹 Database
-
-MongoDB Atlas
-
-Embedded + Referenced models
-
-Indexing
-
-Aggregation pipelines
-
-🗄 Database Design
 Collections:
+- users  
+- workouts  
+- exercises  
+- metrics  
 
-users
+Referenced models:
+- userId in workouts  
+- userId in metrics  
+- exerciseId referenced in workouts  
 
-workouts
+Embedded models:
+- exercises embedded inside workout documents  
+- sets embedded inside each exercise  
 
-exercises
+This hybrid structure ensures fast workout retrieval, reduced data duplication, and flexible relations.
 
-metrics
+---
 
-Referenced Models:
-
-userId in workouts
-
-userId in metrics
-
-exercises referenced in workouts
-
-Embedded Models:
-
-exercises inside workouts
-
-sets inside exercises
-
-This hybrid structure ensures:
-
-Fast workout retrieval
-
-Reduced duplication
-
-Flexible relations
-
-🔐 Authentication & RBAC
+## 🔐 Authentication & RBAC
 
 Authentication is implemented using JWT (JSON Web Tokens).
 
 Roles:
-
-User → manages only own data
-
-Admin → can delete any workout
+- User → can create, update, and delete only their own workouts and metrics.  
+- Admin → can delete any workout in the system through protected admin endpoints.  
 
 Middleware:
+- JWT verification middleware  
+- Role verification middleware  
 
-JWT verification
+All protected routes require:
 
-Role verification (RBAC)
+Authorization: Bearer <JWT_TOKEN>
 
-🔄 CRUD Operations
+---
 
-The system fully supports:
+## 🔄 CRUD Operations
 
-Create
+Create:
+- Register user  
+- Create workout  
+- Add exercises  
+- Add sets  
+- Add daily metrics  
 
-Register user
+Read:
+- Get workouts  
+- Get workout details  
+- Get metrics history  
+- Get analytics  
 
-Create workout
+Update:
+- $set  
+- $push  
+- arrayFilters  
+- upsert  
 
-Add exercises & sets
+Delete:
+- Delete workouts  
+- Delete metrics  
+- Remove exercises using $pull  
 
-Add daily metrics
+All database queries are filtered by userId.
 
-Read
+---
 
-Get workouts
+## 📊 Aggregation & Indexing
 
-Get workout details
+Aggregations:
 
-Get metrics history
+Weekly Summary:
+- Group workouts by week  
+- Calculate total workout duration  
 
-Get analytics
+Top Exercises:
+- Count exercise frequency  
+- Use $lookup for additional data  
 
-Update
+Indexes:
+- Compound index: workouts (userId + date)  
+- Unique index: metrics (userId + date)  
+- Unique index: users (email)  
 
-$set
+These indexes improve performance when filtering data by user and date range.
 
-$push
+---
 
-arrayFilters
+## 🌐 REST API Endpoints
 
-upsert
+Authentication:
 
-Delete
+POST /api/auth/register  
+POST /api/auth/login  
+GET /api/auth/me  
 
-Delete workouts
+Users:
 
-Delete metrics
+GET /api/users/profile  
+PUT /api/users/profile  
 
-$pull exercises from workouts
+Workouts:
 
-All queries are filtered by userId.
+POST /api/workouts  
+GET /api/workouts  
+GET /api/workouts/:id  
+PUT /api/workouts/:id  
+DELETE /api/workouts/:id  
 
-📊 Aggregation & Indexing
-Aggregations
-Weekly Summary
+Admin (RBAC):
 
-Group workouts by week
+DELETE /api/admin/workouts/:id  
 
-Calculate total duration
+Metrics:
 
-Top Exercises
+POST /api/metrics  
+GET /api/metrics  
+DELETE /api/metrics/:id  
 
-Count exercises
+Analytics:
 
-$lookup for additional info
+GET /api/analytics/weekly-summary  
+GET /api/analytics/top-exercises  
 
-Indexes
+✔ 12+ REST endpoints  
+✔ JWT protected  
+✔ Role-based access control  
 
-Compound index: userId + date
+---
 
-Unique index: metrics (userId + date)
+## 🧠 MongoDB Query Examples
 
-Unique index: users (email)
+Insert Workout:
 
-🌐 REST API Endpoints
-Authentication
-
-POST /api/auth/register
-POST /api/auth/login
-
-Workouts
-
-POST /api/workouts
-GET /api/workouts
-GET /api/workouts/:id
-PUT /api/workouts/:id
-DELETE /api/workouts/:id
-
-Metrics
-
-POST /api/metrics
-GET /api/metrics
-DELETE /api/metrics/:id
-
-Analytics
-
-GET /api/analytics/weekly
-GET /api/analytics/top-exercises
-
-✔ 12+ REST endpoints
-✔ JWT protected
-✔ Role-based access
-
-🧠 MongoDB Query Examples
-Insert Workout
 db.workouts.insertOne({
   userId: ObjectId("..."),
   date: ISODate("2026-02-01"),
-  duration: 60,
-  exercises: []
+  durationMin: 60,
+  items: []
 });
 
-Find Workouts
-db.workouts.find({ userId: ObjectId("...") });
+Find Workouts:
 
-Add Exercise
+db.workouts.find({
+  userId: ObjectId("...")
+});
+
+Add Exercise:
+
 db.workouts.updateOne(
   { _id: ObjectId("...") },
-  { $push: { exercises: { name: "Bench Press", sets: [] } } }
+  {
+    $push: {
+      items: {
+        exerciseId: ObjectId("..."),
+        sets: []
+      }
+    }
+  }
 );
 
-Remove Exercise
+Remove Exercise:
+
 db.workouts.updateOne(
   { _id: ObjectId("...") },
-  { $pull: { exercises: { name: "Bench Press" } } }
+  {
+    $pull: {
+      items: { exerciseId: ObjectId("...") }
+    }
+  }
 );
 
-Weekly Aggregation
+Weekly Aggregation:
+
 db.workouts.aggregate([
   { $match: { userId: ObjectId("...") } },
   {
     $group: {
       _id: { $week: "$date" },
-      totalDuration: { $sum: "$duration" }
+      totalDuration: { $sum: "$durationMin" }
     }
   },
   { $sort: { "_id": 1 } }
 ]);
 
-👩‍💻 Contribution
-Tyulebayeva Arailym
+---
 
-Backend (Node.js, Express)
+## 📸 Application Screenshots and Explanation
 
-MongoDB data modeling
+The Home Page introduces the Fitness Tracker application and provides navigation to the Login and Register pages.
 
-CRUD & aggregation
+The Register Page allows new users to create an account, resulting in the creation of a new document in the users collection. Each user is assigned a default role of "user", which defines their access level within the system.
 
-JWT authentication
+The Login Page enables users to authenticate using their email and password. After successful authentication, a JWT token is issued and used to access protected endpoints. The token also contains the user’s role, which is used for Role-Based Access Control (RBAC).
 
-Mnaidarova Nargiza
+The system implements Role-Based Access Control (RBAC) with two roles:
+- User – can create, update, and delete only their own workouts and metrics.
+- Admin – has elevated privileges and can delete any workout in the system through protected admin endpoints.
 
-Frontend (React)
+Private routes are protected using JWT middleware, and additional role verification middleware ensures that only authorized roles can access specific endpoints.
 
-API integration
+The Workouts Page displays a list of workouts created by the authenticated user. Users can create new workouts, view workout details, edit them, and delete their own workouts.
 
-UI/UX
+The Admin functionality allows administrators to delete workouts created by any user.
 
-Testing & screenshots
+The Metrics Page allows users to record daily fitness metrics such as weight, steps, sleep, and water intake. Data is stored using an upsert operation to prevent duplicate daily records.
 
-✅ REST API Principles
+The Metrics History section displays previously recorded metrics associated with the authenticated user.
 
-Resource-based URLs
+The Analytics Page presents weekly workout summaries and top exercises, generated using MongoDB aggregation pipelines.
 
-Stateless authentication
+Screenshots of MongoDB Atlas collections confirm correct data storage and demonstrate embedded and referenced document structures.
 
-Proper HTTP methods
+---
+---
 
-Clear separation of public/private endpoints
+# 📸 Application Screenshots
 
-🎯 Conclusion
+## 🏠 Home Page
 
-The Fitness Tracker project demonstrates:
+![Home](./screenshots/home.png)
 
-Full-stack architecture
+---
 
-REST API development
+## 🔐 Register Page
 
-JWT authentication & RBAC
+![Register](./screenshots/register.png)
 
-Advanced MongoDB usage
+---
 
-Aggregation pipelines
+## 🔑 Login Page
 
-Index optimization
+![Login](./screenshots/login.png)
 
-The project fully satisfies the requirements of the WEB Technologies 2 (Back End) course and demonstrates practical implementation of database-driven web applications.
+---
+
+## 🏋️ Workouts Page
+
+![Workouts](./screenshots/workouts.png)
+
+---
+
+## 📄 Workout Details
+
+![Workout Details](./screenshots/workout_details.png)
+
+---
+
+## 📊 Metrics Page
+
+![Metrics](./screenshots/metrics.png)
+
+---
+
+## 📈 Metrics History
+
+![Metrics History](./screenshots/metrics_history.png)
+
+---
+
+## 📉 Analytics Page
+
+![Analytics](./screenshots/analytics.png)
+
+---
+
+## 🛡 RBAC Admin Panel
+
+![RBAC Admin](./screenshots/rbac_admin.png)
+
+---
+
+## ⚙ Admin Functionality
+
+![Admin Functionality](./screenshots/admin_functionality.png)
+
+---
+
+## 🔔 Admin Notifications
+
+![Admin Notifications](./screenshots/admin_notifications.png)
+
+---
+
+## 🗄 MongoDB Atlas Collections
+
+![MongoDB](./screenshots/mongodb.png)
+
+---
+
+## 👩‍💻 Contribution
+
+Tyulebayeva Arailym:
+- Backend development (Node.js, Express)  
+- MongoDB data modeling  
+- CRUD & aggregation pipelines  
+- JWT authentication and RBAC  
+
+Mnaidarova Nargiza:
+- Frontend development (React)  
+- API integration  
+- UI/UX design  
+- Testing and screenshots  
+
+---
+
+## 🎯 Conclusion
+
+The Fitness Tracker project demonstrates full-stack architecture, REST API development, JWT authentication with RBAC, and advanced MongoDB usage including embedded documents, references, update operators, upsert operations, aggregation pipelines, and indexing.
+
+The project fully satisfies the requirements of the WEB Technologies 2 (Back End) course and demonstrates practical implementation of a secure database-driven web application.
