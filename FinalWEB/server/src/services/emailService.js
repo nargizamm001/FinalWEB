@@ -1,32 +1,43 @@
-const dns = require("dns");
-dns.setDefaultResultOrder("ipv4first");
+// FinalWEB/server/src/services/emailService.js
 
-const nodemailer = require("nodemailer");
+const fetchFn =
+  typeof fetch === "function"
+    ? fetch
+    : (...args) => import("node-fetch").then(({ default: f }) => f(...args));
 
-const transporter = nodemailer.createTransport({
-  host: "74.125.140.108", // IPv4 smtp.gmail.com
-  port: 587,
-  secure: false,
-  requireTLS: true,
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-  tls: {
-    servername: "smtp.gmail.com", // важно для TLS
-  },
-  connectionTimeout: 15000,
-  greetingTimeout: 15000,
-  socketTimeout: 20000,
-});
+async function sendEmail({ subject, text, to }) {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) throw new Error("RESEND_API_KEY is not set");
 
-async function sendEmail({ subject, text }) {
-  return transporter.sendMail({
-    from: `"${process.env.EMAIL_FROM_NAME || "App"}" <${process.env.GMAIL_USER}>`,
-    to: process.env.ADMIN_EMAIL,
-    subject,
-    text,
+  const target = to || process.env.ADMIN_EMAIL;
+  if (!target) throw new Error("ADMIN_EMAIL is not set");
+
+  const from = process.env.EMAIL_FROM || "onboarding@resend.dev";
+
+  const r = await fetchFn("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from,
+      to: [target],
+      subject,
+      text,
+    }),
   });
+
+  const bodyText = await r.text();
+  if (!r.ok) {
+    throw new Error(`Resend error ${r.status}: ${bodyText}`);
+  }
+
+  try {
+    return JSON.parse(bodyText);
+  } catch {
+    return bodyText;
+  }
 }
 
 module.exports = { sendEmail };
