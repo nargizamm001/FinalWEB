@@ -31,12 +31,17 @@ async function register(req, res, next) {
 
     console.log("REGISTER HIT", email);
 
-    sendEmail({
-      subject: "New user registered",
-      text: `New user registered: ${user.email}`,
-    })
-      .then(() => console.log("Email sent (async)"))
-      .catch((e) => console.error("Email failed:", e.message));
+    try {
+      console.log("EMAIL: sending...");
+      const result = await sendEmail({
+        subject: "New user registered",
+        text: `New user registered: ${user.email}`,
+      });
+      console.log("EMAIL: sent OK:", result);
+    } catch (e) {
+      console.error("EMAIL: FAILED FULL:", e);
+      console.error("EMAIL: FAILED MSG:", e?.message);
+    }
 
     const token = signToken(user);
 
@@ -53,6 +58,7 @@ async function register(req, res, next) {
     next(err);
   }
 }
+
 
 async function login(req, res) {
   const { email, password } = req.body;
